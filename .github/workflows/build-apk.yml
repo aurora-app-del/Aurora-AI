@@ -71,7 +71,8 @@ jobs:
 
       - name: Install Android SDK tools
         run: |
-          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
+          sdkmanager \
+            --sdk_root="$ANDROID_SDK_ROOT" \
             "platform-tools" \
             "platforms;android-35" \
             "build-tools;37.0.0"
@@ -93,14 +94,14 @@ jobs:
 
           echo "Instalando Build Tools 37.0.0 no SDK do Buildozer..."
 
-          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"\
-            --sdk_root="$BUILD_SDK"\
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            --sdk_root="$BUILD_SDK" \
             --licenses || true
 
-          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"\
-            --sdk_root="$BUILD_SDK"\
-            "platform-tools"\
-            "platforms;android-35"\
+          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            --sdk_root="$BUILD_SDK" \
+            "platform-tools" \
+            "platforms;android-35" \
             "build-tools;37.0.0"
 
           echo ""
@@ -109,14 +110,14 @@ jobs:
 
           echo ""
           echo "AIDL:"
-          find "$BUILD_SDK/build-tools"\
-            -type f\
-            -name "aidl"\
+          find "$BUILD_SDK/build-tools" \
+            -type f \
+            -name "aidl" \
             -print
-            
-          - name: Setup AIDL
-           shell: bash
-           run: |
+
+      - name: Setup AIDL
+        shell: bash
+        run: |
           echo "=== Procurando AIDL ==="
 
           BUILD_SDK="$HOME/.buildozer/android/platform/android-sdk"
@@ -148,9 +149,10 @@ jobs:
 
           echo "$AIDL_DIR" >> "$GITHUB_PATH"
           echo "AIDL_PATH=$AIDL_PATH" >> "$GITHUB_ENV"
-          - name: Verify AIDL
-          shell: bash
-          run: |
+
+      - name: Verify AIDL
+        shell: bash
+        run: |
           echo "=== Verificação do AIDL ==="
 
           echo "which aidl:"
@@ -162,9 +164,10 @@ jobs:
 
           echo ""
           echo "AIDL funcionando corretamente!"
-          - name: Compatibilidade SDK Buildozer
-          shell: bash
-          run: |
+
+      - name: Compatibilidade SDK Buildozer
+        shell: bash
+        run: |
           BUILD_SDK="$HOME/.buildozer/android/platform/android-sdk"
 
           echo "=== Corrigindo caminho do sdkmanager ==="
@@ -196,12 +199,6 @@ jobs:
             -type f \
             -name "aidl" \
             -print 2>/dev/null || true
-
-          E deixa logo depois:
-
-      - name: Build APK
-        run: |
-          buildozer android debug
 
       - name: Build APK
         run: |
