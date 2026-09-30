@@ -96,4 +96,4 @@ jobs:
           name: Aurora-APK
           path: bin/*.apk
 
-Agora é só salvar → commit → rodar o Actions novamente. 🚀
+Agora é só salvar → commit → rodar o Actions novamente. 🚀concurrency:
