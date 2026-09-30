@@ -82,35 +82,39 @@ jobs:
             --sdk_root="$ANDROID_SDK_ROOT" \
             --licenses || true
 
-      - name: Configurar SDK do Buildozer
+      - - name: Preparar SDK do Buildozer
         shell: bash
         run: |
-          echo "=== Configurando SDK do Buildozer ==="
+          echo "=== Preparando SDK do Buildozer ==="
 
           BUILD_SDK="$HOME/.buildozer/android/platform/android-sdk"
 
           mkdir -p "$BUILD_SDK"
 
-          rm -rf "$BUILD_SDK/tools"
+          echo "Instalando Build Tools 37.0.0 no SDK do Buildozer..."
 
-          ln -s "$ANDROID_SDK_ROOT/cmdline-tools/latest" \
-            "$BUILD_SDK/tools"
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            --sdk_root="$BUILD_SDK" \
+            --licenses || true
 
-          echo ""
-          echo "SDK do Buildozer:"
-          echo "$BUILD_SDK"
-
-          echo ""
-          echo "sdkmanager:"
-          ls -l "$BUILD_SDK/tools/bin/sdkmanager"
-
-          echo ""
-          echo "Testando sdkmanager:"
-          "$BUILD_SDK/tools/bin/sdkmanager" --version
+          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            --sdk_root="$BUILD_SDK" \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;37.0.0"
 
           echo ""
-          echo "Build Tools:"
-          ls -la "$ANDROID_SDK_ROOT/build-tools"
+          echo "Build Tools instalados:"
+          ls -la "$BUILD_SDK/build-tools"
+
+          echo ""
+          echo "AIDL:"
+          find "$BUILD_SDK/build-tools" \
+            -type f \
+            -name "aidl" \
+            -print
+
+       E mantenha o "Setup AIDL" depois dele.
 
       - name: Setup AIDL
         shell: bash
