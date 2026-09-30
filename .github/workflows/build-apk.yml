@@ -6,6 +6,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: aurora-apk-build
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -66,7 +70,6 @@ jobs:
 
           if [ ! -x "$AIDL_PATH" ]; then
             echo "AIDL NÃO FOI ENCONTRADO!"
-            echo "Conteúdo do Build Tools:"
             ls -la "$ANDROID_SDK_ROOT/build-tools/36.1.0/" || true
             exit 1
           fi
@@ -95,5 +98,3 @@ jobs:
         with:
           name: Aurora-APK
           path: bin/*.apk
-
-Agora é só salvar → commit → rodar o Actions novamente. 🚀concurrency:
