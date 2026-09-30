@@ -156,17 +156,16 @@ jobs:
 
           echo "$AIDL_DIR" >> "$GITHUB_PATH"
           echo "AIDL_PATH=$AIDL_PATH" >> "$GITHUB_ENV"
-
-      - name: Verify AIDL
-        shell: bash
-        run: |
+          - name: Verify AIDL
+          shell: bash
+          run: |
           echo "=== Verificação do AIDL ==="
 
           echo "which aidl:"
           which aidl
 
           echo ""
-          echo "AIDL:"
+          echo "Testando AIDL:"
           aidl --help > /dev/null
 
           echo ""
