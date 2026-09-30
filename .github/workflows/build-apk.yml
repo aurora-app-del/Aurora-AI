@@ -81,12 +81,12 @@ jobs:
         run: |
           echo "=== Configurando SDK do Buildozer ==="
 
-          mkdir -p "$HOME/.buildozer/android"
+          mkdir -p "$HOME/.buildozer/android/platform"
 
           rm -rf "$HOME/.buildozer/android/platform/android-sdk"
 
           ln -s "$ANDROID_SDK_ROOT" \
-            "$HOME/.buildozer/android/platform/android-sdk"
+           "$HOME/.buildozer/android/platform/android-sdk"
 
           echo "SDK do Buildozer:"
           readlink -f "$HOME/.buildozer/android/platform/android-sdk"
