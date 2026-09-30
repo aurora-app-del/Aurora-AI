@@ -1,83 +1,42 @@
-name: Build Aurora APK
-
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-
-concurrency:
-  group: aurora-apk-build
-  cancel-in-progress: true
-
-jobs:
-  build:
-    runs-on: ubuntu-22.04
-
-    steps:
-      - name: Baixar código
-        uses: actions/checkout@v4
-
-      - name: Configurar Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Configurar Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Instalar dependências
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git zip unzip \
-            autoconf libtool pkg-config \
-            zlib1g-dev libncurses5-dev \
-            libncursesw5-dev libtinfo5 \
-            cmake libffi-dev libssl-dev
-
-      - name: Instalar Buildozer
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install buildozer "cython<3"
-
-      - name: Corrigir Aurora
-        run: |
-          sed -i 's/aurora\.chat(text)/aurora.think(text)/g' aurora_app.py
-
-      - name: Configurar Android SDK
-        run: |
-          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
-          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
-          echo "$ANDROID_SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
-
-      - name: Instalar ferramentas Android
+- name: Instalar ferramentas Android
         run: |
           sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
             "platform-tools" \
             "platforms;android-35" \
+            "build-tools;35.0.0" \
             "build-tools;36.1.0"
 
       - name: Aceitar licenças
         run: |
           yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses || true
 
-      - name: Configurar AIDL
+      - name: Encontrar e configurar AIDL
         run: |
-          AIDL_PATH="$ANDROID_SDK_ROOT/build-tools/36.1.0/aidl"
+          echo "Procurando AIDL..."
 
-          if [ ! -x "$AIDL_PATH" ]; then
-            echo "AIDL NÃO FOI ENCONTRADO!"
-            ls -la "$ANDROID_SDK_ROOT/build-tools/36.1.0/" || true
+          AIDL_PATH=$(find "$ANDROID_SDK_ROOT/build-tools" \
+            -type f \
+            -name "aidl" \
+            -perm -111 \
+            | sort -V \
+            | tail -n 1)
+
+          if [ -z "$AIDL_PATH" ]; then
+            echo "ERRO: AIDL NÃO FOI ENCONTRADO!"
+            echo "Build Tools instalados:"
+            find "$ANDROID_SDK_ROOT/build-tools" -maxdepth 2 -type f -name "aidl" -print || true
             exit 1
           fi
 
-          echo "AIDL encontrado:"
+          echo "AIDL encontrado em:"
           echo "$AIDL_PATH"
 
-          echo "$(dirname "$AIDL_PATH")" >> "$GITHUB_PATH"
+          AIDL_DIR=$(dirname "$AIDL_PATH")
+
+          echo "Adicionando ao PATH:"
+          echo "$AIDL_DIR"
+
+          echo "$AIDL_DIR" >> "$GITHUB_PATH"
 
       - name: Verificar AIDL
         run: |
@@ -88,13 +47,3 @@ jobs:
           aidl --help > /dev/null
 
           echo "AIDL funcionando corretamente!"
-
-      - name: Construir APK
-        run: |
-          buildozer android debug
-
-      - name: Guardar APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Aurora-APK
-          path: bin/*.apk
