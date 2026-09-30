@@ -77,6 +77,27 @@ jobs:
             --sdk_root="$ANDROID_SDK_ROOT" \
             --licenses || true
 
+      - name: Configurar SDK do Buildozer
+        run: |
+          echo "=== Configurando SDK do Buildozer ==="
+
+          mkdir -p "$HOME/.buildozer/android"
+
+          rm -rf "$HOME/.buildozer/android/platform/android-sdk"
+
+          ln -s "$ANDROID_SDK_ROOT" \
+            "$HOME/.buildozer/android/platform/android-sdk"
+
+          echo "SDK do Buildozer:"
+          readlink -f "$HOME/.buildozer/android/platform/android-sdk"
+
+          echo ""
+          echo "AIDL disponível:"
+          find "$ANDROID_SDK_ROOT/build-tools" \
+            -type f \
+            -name "aidl" \
+            -print
+
       - name: Setup AIDL
         shell: bash
         run: |
