@@ -54,35 +54,37 @@ jobs:
           sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
             "platform-tools" \
             "platforms;android-35" \
-            "build-tools;35.0.0"
+            "build-tools;36.1.0"
 
       - name: Aceitar licenças
         run: |
           yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses || true
 
-      - name: Encontrar AIDL
+      - name: Configurar AIDL
         run: |
-          echo "Procurando AIDL..."
-          find "$ANDROID_SDK_ROOT" -type f -name "aidl" -print
+          AIDL_PATH="$ANDROID_SDK_ROOT/build-tools/36.1.0/aidl"
 
-      - name: Configurar caminho do AIDL
-        run: |
-          AIDL_PATH=$(find "$ANDROID_SDK_ROOT" -type f -name "aidl" | head -n 1)
-          if [ -z "$AIDL_PATH" ]; then
+          if [ ! -x "$AIDL_PATH" ]; then
             echo "AIDL NÃO FOI ENCONTRADO!"
+            echo "Conteúdo do Build Tools:"
+            ls -la "$ANDROID_SDK_ROOT/build-tools/36.1.0/" || true
             exit 1
           fi
 
-          echo "AIDL encontrado em:"
+          echo "AIDL encontrado:"
           echo "$AIDL_PATH"
 
-          AIDL_DIR=$(dirname "$AIDL_PATH")
-          echo "$AIDL_DIR" >> "$GITHUB_PATH"
+          echo "$(dirname "$AIDL_PATH")" >> "$GITHUB_PATH"
 
       - name: Verificar AIDL
         run: |
+          echo "Localização do AIDL:"
           which aidl
-          aidl --version
+
+          echo "Testando AIDL:"
+          aidl --help > /dev/null
+
+          echo "AIDL funcionando corretamente!"
 
       - name: Construir APK
         run: |
@@ -93,3 +95,5 @@ jobs:
         with:
           name: Aurora-APK
           path: bin/*.apk
+
+Agora é só salvar → commit → rodar o Actions novamente. 🚀
