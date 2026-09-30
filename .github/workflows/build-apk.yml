@@ -172,13 +172,10 @@ jobs:
 
           echo "=== Corrigindo caminho do sdkmanager ==="
 
-          mkdir -p "$BUILD_SDK/tools"
-
-          rm -rf "$BUILD_SDK/tools/bin"
-
           mkdir -p "$BUILD_SDK/tools/bin"
 
-          ln -s "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+          ln -sf \
+            "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
             "$BUILD_SDK/tools/bin/sdkmanager"
 
           echo ""
@@ -199,9 +196,10 @@ jobs:
             -type f \
             -name "aidl" \
             -print 2>/dev/null || true
-            - name: Corrigir SDK para python-for-android
-          shell: bash
-          run: |
+
+      - name: Corrigir SDK para python-for-android
+        shell: bash
+        run: |
           BUILD_SDK="$HOME/.buildozer/android/platform/android-sdk"
 
           echo "=== Corrigindo Android SDK ==="
