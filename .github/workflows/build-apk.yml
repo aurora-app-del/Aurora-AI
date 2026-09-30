@@ -199,6 +199,41 @@ jobs:
             -type f \
             -name "aidl" \
             -print 2>/dev/null || true
+            - name: Corrigir SDK para python-for-android
+          shell: bash
+          run: |
+          BUILD_SDK="$HOME/.buildozer/android/platform/android-sdk"
+
+          echo "=== Corrigindo Android SDK ==="
+
+          mkdir -p "$BUILD_SDK/cmdline-tools/latest/bin"
+
+          ln -sf \
+            "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            "$BUILD_SDK/cmdline-tools/latest/bin/sdkmanager"
+
+          ln -sf \
+            "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager" \
+            "$BUILD_SDK/cmdline-tools/latest/bin/avdmanager"
+
+          mkdir -p "$BUILD_SDK/platform-tools"
+
+          if [ -d "$ANDROID_SDK_ROOT/platform-tools" ]; then
+            cp -a "$ANDROID_SDK_ROOT/platform-tools/." \
+              "$BUILD_SDK/platform-tools/"
+          fi
+
+          echo ""
+          echo "SDK:"
+          ls -la "$BUILD_SDK"
+
+          echo ""
+          echo "sdkmanager:"
+          ls -l "$BUILD_SDK/cmdline-tools/latest/bin/sdkmanager"
+
+          echo ""
+          echo "platform-tools:"
+          ls -la "$BUILD_SDK/platform-tools"
 
       - name: Build APK
         run: |
