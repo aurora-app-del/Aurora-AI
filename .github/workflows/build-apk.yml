@@ -25,45 +25,64 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Instalar dependências do sistema
+      - name: Instalar dependências
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            git zip unzip \
+          sudo apt-get install -y git zip unzip \
             autoconf libtool pkg-config \
             zlib1g-dev libncurses5-dev \
             libncursesw5-dev libtinfo5 \
             cmake libffi-dev libssl-dev
-
-      - name: Configurar Android SDK
-        run: |
-          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          echo "$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_PATH
-          echo "$ANDROID_SDK_ROOT/build-tools/35.0.0" >> $GITHUB_PATH
 
       - name: Instalar Buildozer
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install buildozer "cython<3"
 
-      - name: Corrigir integração Aurora
+      - name: Corrigir Aurora
         run: |
           sed -i 's/aurora\.chat(text)/aurora.think(text)/g' aurora_app.py
 
-      - name: Aceitar licenças Android
+      - name: Configurar Android SDK
         run: |
-          yes | sdkmanager --licenses || true
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
 
       - name: Instalar ferramentas Android
         run: |
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-          yes | sdkmanager --licenses
+          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
+
+      - name: Aceitar licenças
+        run: |
+          yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses || true
+
+      - name: Encontrar AIDL
+        run: |
+          echo "Procurando AIDL..."
+          find "$ANDROID_SDK_ROOT" -type f -name "aidl" -print
+
+      - name: Configurar caminho do AIDL
+        run: |
+          AIDL_PATH=$(find "$ANDROID_SDK_ROOT" -type f -name "aidl" | head -n 1)
+          if [ -z "$AIDL_PATH" ]; then
+            echo "AIDL NÃO FOI ENCONTRADO!"
+            exit 1
+          fi
+
+          echo "AIDL encontrado em:"
+          echo "$AIDL_PATH"
+
+          AIDL_DIR=$(dirname "$AIDL_PATH")
+          echo "$AIDL_DIR" >> "$GITHUB_PATH"
 
       - name: Verificar AIDL
         run: |
-          find "$ANDROID_HOME" -name aidl -type f -print
-          aidl --version || true
+          which aidl
+          aidl --version
 
       - name: Construir APK
         run: |
