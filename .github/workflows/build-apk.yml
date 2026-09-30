@@ -114,9 +114,9 @@ jobs:
             -name "aidl" \
             -print
 
-      - name: Setup AIDL
-        shell: bash
-        run: |
+          - name: Setup AIDL
+           shell: bash
+           run: |
           echo "=== Procurando AIDL ==="
 
           BUILD_SDK="$HOME/.buildozer/android/platform/android-sdk"
@@ -135,14 +135,6 @@ jobs:
 
           if [ -z "$AIDL_PATH" ]; then
             echo "ERRO: AIDL não encontrado."
-            echo ""
-            echo "Build Tools disponíveis:"
-            find "$BUILD_SDK/build-tools" \
-              -maxdepth 2 \
-              -type f \
-              -name "aidl" \
-              -print 2>/dev/null || true
-
             exit 1
           fi
 
