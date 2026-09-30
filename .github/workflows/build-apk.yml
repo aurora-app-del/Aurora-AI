@@ -171,6 +171,46 @@ jobs:
 
           echo ""
           echo "AIDL funcionando corretamente!"
+          - name: Compatibilidade SDK Buildozer
+          shell: bash
+          run: |
+          BUILD_SDK="$HOME/.buildozer/android/platform/android-sdk"
+
+          echo "=== Corrigindo caminho do sdkmanager ==="
+
+          mkdir -p "$BUILD_SDK/tools"
+
+          rm -rf "$BUILD_SDK/tools/bin"
+
+          mkdir -p "$BUILD_SDK/tools/bin"
+
+          ln -s "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            "$BUILD_SDK/tools/bin/sdkmanager"
+
+          echo ""
+          echo "sdkmanager:"
+          ls -l "$BUILD_SDK/tools/bin/sdkmanager"
+
+          echo ""
+          echo "Testando:"
+          "$BUILD_SDK/tools/bin/sdkmanager" --version
+
+          echo ""
+          echo "Build Tools:"
+          ls -la "$BUILD_SDK/build-tools" || true
+
+          echo ""
+          echo "AIDL:"
+          find "$BUILD_SDK/build-tools" \
+            -type f \
+            -name "aidl" \
+            -print 2>/dev/null || true
+
+          E deixa logo depois:
+
+      - name: Build APK
+        run: |
+          buildozer android debug
 
       - name: Build APK
         run: |
