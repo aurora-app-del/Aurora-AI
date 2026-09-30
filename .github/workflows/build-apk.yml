@@ -82,7 +82,7 @@ jobs:
             --sdk_root="$ANDROID_SDK_ROOT" \
             --licenses || true
 
-      - - name: Preparar SDK do Buildozer
+      - name: Preparar SDK do Buildozer
         shell: bash
         run: |
           echo "=== Preparando SDK do Buildozer ==="
@@ -114,13 +114,12 @@ jobs:
             -name "aidl" \
             -print
 
-       E mantenha o "Setup AIDL" depois dele.
-
       - name: Setup AIDL
         shell: bash
         run: |
           echo "=== Procurando AIDL ==="
 
+          BUILD_SDK="$HOME/.buildozer/android/platform/android-sdk"
           AIDL_PATH=""
 
           while IFS= read -r file; do
@@ -128,7 +127,7 @@ jobs:
               AIDL_PATH="$file"
             fi
           done < <(
-            find "$ANDROID_SDK_ROOT/build-tools" \
+            find "$BUILD_SDK/build-tools" \
               -type f \
               -name "aidl" \
               2>/dev/null | sort -V
@@ -138,7 +137,7 @@ jobs:
             echo "ERRO: AIDL não encontrado."
             echo ""
             echo "Build Tools disponíveis:"
-            find "$ANDROID_SDK_ROOT/build-tools" \
+            find "$BUILD_SDK/build-tools" \
               -maxdepth 2 \
               -type f \
               -name "aidl" \
