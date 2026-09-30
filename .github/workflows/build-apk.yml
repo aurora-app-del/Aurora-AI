@@ -60,18 +60,23 @@ jobs:
       - name: Configure Android SDK
         run: |
           echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
-
           echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
           echo "$ANDROID_SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+
+      - name: Accept Android licenses
+        run: |
+          yes | sdkmanager \
+            --sdk_root="$ANDROID_SDK_ROOT" \
+            --licenses || true
 
       - name: Install Android SDK tools
         run: |
           sdkmanager --sdk_root="$ANDROID_SDK_ROOT" \
             "platform-tools" \
             "platforms;android-35" \
-            "build-tools;35.0.0"
+            "build-tools;37.0.0"
 
-      - name: Accept Android licenses
+      - name: Accept Android licenses again
         run: |
           yes | sdkmanager \
             --sdk_root="$ANDROID_SDK_ROOT" \
@@ -104,11 +109,8 @@ jobs:
           "$BUILD_SDK/tools/bin/sdkmanager" --version
 
           echo ""
-          echo "AIDL disponível:"
-          find "$ANDROID_SDK_ROOT/build-tools" \
-            -type f \
-            -name "aidl" \
-            -print
+          echo "Build Tools:"
+          ls -la "$ANDROID_SDK_ROOT/build-tools"
 
       - name: Setup AIDL
         shell: bash
@@ -138,10 +140,6 @@ jobs:
               -name "aidl" \
               -print 2>/dev/null || true
 
-            echo ""
-            echo "Conteúdo do Android SDK:"
-            ls -la "$ANDROID_SDK_ROOT/build-tools" || true
-
             exit 1
           fi
 
@@ -154,7 +152,6 @@ jobs:
           echo "$AIDL_DIR"
 
           echo "$AIDL_DIR" >> "$GITHUB_PATH"
-
           echo "AIDL_PATH=$AIDL_PATH" >> "$GITHUB_ENV"
 
       - name: Verify AIDL
@@ -162,10 +159,6 @@ jobs:
         run: |
           echo "=== Verificação do AIDL ==="
 
-          echo "PATH:"
-          echo "$PATH"
-
-          echo ""
           echo "which aidl:"
           which aidl
 
