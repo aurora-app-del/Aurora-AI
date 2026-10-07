@@ -5,7 +5,7 @@ package.domain = org.aurora.ai
 source.dir = .
 source.include_exts = py,json,db,txt
 version = 2.0
-requirements = python3,kivy,pyjnius
+requirements = python3==3.13.11,hostpython3==3.13.11,kivy,pyjnius
 orientation = portrait
 fullscreen = 0
 
